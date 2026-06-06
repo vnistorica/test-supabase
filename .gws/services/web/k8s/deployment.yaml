@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
         - name: web
-          image: local/supabase-test/web:latest
-          imagePullPolicy: Never
+          image: web
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           env:

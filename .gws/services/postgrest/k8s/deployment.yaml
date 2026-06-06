@@ -16,13 +16,13 @@ spec:
     spec:
       containers:
         - name: postgrest
-          image: local/supabase-test/postgrest:latest
-          imagePullPolicy: Never
+          image: postgrest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           env:
             - name: PGRST_DB_URI
-              value: "postgresql://devuser:devpassword@postgres:5432/appdb"
+              value: "postgresql://devuser:devpassword@postgres-postgresql:5432/appdb"
             - name: PGRST_DB_SCHEMAS
               value: "public"
             - name: PGRST_DB_ANON_ROLE

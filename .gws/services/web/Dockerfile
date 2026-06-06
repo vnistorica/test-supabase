@@ -13,4 +13,8 @@ ENV NODE_ENV=development
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-CMD ["npm", "run", "dev"]
+# The GWS workspace PVC is mounted over /app at runtime, which shadows the
+# node_modules installed above (node_modules is excluded from file sync). Install
+# deps into the mounted workspace on first start; the PVC persists across
+# restarts, so this only runs once.
+CMD ["sh", "-c", "if [ ! -x node_modules/.bin/next ]; then echo 'Installing dependencies into workspace...'; npm install; fi; exec npm run dev"]
