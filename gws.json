@@ -1,0 +1,77 @@
+{
+  "name": "supabase-test",
+  "version": "1.0.0",
+  "registry": { "mode": "local" },
+  "provision": {
+    "environments": {
+      "dev": {
+        "type": "k3d",
+        "default": true
+      }
+    }
+  },
+  "services": [
+    {
+      "name": "web",
+      "path": "./",
+      "port": 3000,
+      "hosts": ["web.supabase-test.local.getwebstack.dev"],
+      "fileSync": true,
+      "fileSyncIgnore": [
+        "node_modules/",
+        ".next/",
+        "dist/",
+        "build/",
+        "coverage/",
+        "*.log"
+      ],
+      "dockerfile": ".gws/services/web/Dockerfile",
+      "manifests": ".gws/services/web/k8s"
+    },
+    {
+      "name": "postgrest",
+      "path": "./",
+      "port": 3000,
+      "fileSync": false,
+      "dockerfile": ".gws/services/postgrest/Dockerfile",
+      "manifests": ".gws/services/postgrest/k8s"
+    },
+    {
+      "name": "postgres",
+      "path": "./postgres",
+      "helm": {
+        "chart": "oci://registry-1.docker.io/bitnamicharts/postgresql",
+        "version": "15.5.38",
+        "values": {
+          "global": {
+            "security": {
+              "allowInsecureImages": true
+            }
+          },
+          "image": {
+            "registry": "docker.io",
+            "repository": "bitnamilegacy/postgresql",
+            "tag": "16.4.0-debian-12-r14"
+          },
+          "auth": {
+            "postgresPassword": "devpassword",
+            "username": "devuser",
+            "password": "devpassword",
+            "database": "appdb"
+          },
+          "primary": {
+            "initdb": {
+              "scripts": {
+                "seed.sql": "\\c appdb devuser\nCREATE TABLE IF NOT EXISTS items (id SERIAL PRIMARY KEY, name TEXT NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW());\nINSERT INTO items (name) VALUES ('Hello from Supabase'), ('Running locally with GWS'), ('Next.js + Supabase');\n"
+              }
+            },
+            "persistence": {
+              "enabled": false
+            }
+          }
+        }
+      },
+      "fileSync": false
+    }
+  ]
+}
